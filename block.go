@@ -28,8 +28,19 @@ func (b *Block) SetHash() {
 
 // 新建一个块
 
-func NewBlock(version string, data string, prevBlockHash []byte, nonce int) *Block {
-	block := &Block{version, time.Now().Unix(), []byte(data), prevBlockHash, []byte{}, nonce}
-	block.SetHash()
+//func NewBlock(version string, data string, prevBlockHash []byte, nonce int) *Block {
+//	block := &Block{version, time.Now().Unix(), []byte(data), prevBlockHash, []byte{}, nonce}
+//	block.SetHash()
+//	return block
+//}
+
+func NewBlock(version string, data string, prevBlockHash []byte) *Block {
+	block := &Block{version, time.Now().Unix(), []byte(data), prevBlockHash, []byte{}, 0}
+	pow := NewProofOfWork(block)
+	nonce, hash := pow.Run()
+
+	block.Hash = hash[:]
+	block.Nonce = nonce
+
 	return block
 }

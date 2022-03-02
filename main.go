@@ -3,6 +3,7 @@ package main
 import (
 	"colorout"
 	"fmt"
+	"strconv"
 )
 
 func main() {
@@ -16,6 +17,10 @@ func main() {
 		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
 		fmt.Printf("Data: %s\n", block.Data)
 		fmt.Printf("Hash: %x\n", block.Hash)
+		pow := NewProofOfWork(block)
+		fmt.Printf(colorout.Green("PoW: " + strconv.FormatBool(pow.Validate()) + "\n"))
+		fmt.Println()
 		fmt.Println()
 	}
+
 }

@@ -10,12 +10,12 @@ func NewBlockchain() *Blockchain {
 }
 
 func NewGenesisBlock() *Block {
-	return NewBlock("0.0-beta0", "Genesis Block", []byte{}, 0)
+	return NewBlock("0.0-beta0", "Genesis Block", []byte{})
 }
 
 // TODO: Version和Nonce的值现在是随便继承了之前的。
 func (bc *Blockchain) AddBlock(data string) {
 	prevBlock := bc.blocks[len(bc.blocks)-1]
-	newBlock := NewBlock(prevBlock.Version, data, prevBlock.Hash, prevBlock.Nonce)
+	newBlock := NewBlock(prevBlock.Version, data, prevBlock.Hash)
 	bc.blocks = append(bc.blocks, newBlock)
 }
