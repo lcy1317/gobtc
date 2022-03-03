@@ -1,15 +1,14 @@
 package main
 
 import (
-	"colorout"
-	"fmt"
+	"color"
 )
 
 func main() {
-	fmt.Println(colorout.Yellow("This is a go btc implement."))
-	bc := NewBlockchain()
-	defer bc.db.Close()
+	color.Yellowln("This is a go btc implement.")
+	//bc := NewBlockchain(NodeID)
+	//defer bc.db.Close()
 
-	cli := CLI{bc}
+	cli := CLI{}
 	cli.Run()
 }

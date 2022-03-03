@@ -1,6 +1,7 @@
 package main
 
 import (
+	"color"
 	"colorout"
 	"flag"
 	"fmt"
@@ -33,53 +34,63 @@ func (cli *CLI) validateArgs() {
 }
 func (cli *CLI) Run() {
 	cli.validateArgs()
-
-	addBlockCmd := flag.NewFlagSet("addblock", flag.ExitOnError)
+	//nodeID := os.Getenv("NODE_ID")
+	nodeID := NodeID
+	if nodeID == "" {
+		fmt.Printf("NODE_ID env. var is not set!")
+		os.Exit(1)
+	}
 	printChainCmd := flag.NewFlagSet("printchain", flag.ExitOnError)
 
-	addBlockData := addBlockCmd.String("data", "", "Block data")
+	createBlockChainCmd := flag.NewFlagSet("createBlockChain", flag.ExitOnError)
+	createBlockChainData := createBlockChainCmd.String("address", "", "The address to send genesis block reward to")
 
 	switch os.Args[1] {
-	case "addBlock":
-		err := addBlockCmd.Parse(os.Args[2:])
-		if err != nil {
-			fmt.Println(colorout.Red("增加区块参数读取错误！"))
-		}
 	case "showBlockChain":
 		err := printChainCmd.Parse(os.Args[2:])
 		if err != nil {
 			fmt.Println(colorout.Red("输出链信息参数读取错误！"))
+		}
+	case "createBlockChain":
+		err := createBlockChainCmd.Parse(os.Args[2:])
+		if err != nil {
+			fmt.Println(colorout.Red("创建链参数读取错误！"))
 		}
 	default:
 		cli.printUsage()
 		os.Exit(1)
 	}
 
-	if addBlockCmd.Parsed() {
-		if *addBlockData == "" {
-			addBlockCmd.Usage()
-			os.Exit(1)
-		}
-		cli.addBlock(*addBlockData)
-	}
-
 	if printChainCmd.Parsed() {
 		cli.printChain()
 	}
+
+	if createBlockChainCmd.Parsed() {
+		if *createBlockChainData == "" {
+			createBlockChainCmd.Usage()
+			os.Exit(1)
+		}
+		cli.createBlockChain(*createBlockChainData, nodeID)
+	}
 }
-func (cli *CLI) addBlock(data string) {
-	cli.bc.AddBlock(data)
-	fmt.Println("Success!")
+
+// TODO: NodeID
+func (cli *CLI) createBlockChain(address string, nodeID string) {
+	bc := CreateBlockChain(address, nodeID)
+	defer bc.db.Close()
 }
 
 func (cli *CLI) printChain() {
-	bci := cli.bc.Iterator()
+	bc := NewBlockchain(NodeID)
+	defer bc.db.Close()
+	bci := bc.Iterator()
+	color.Blueln("Show the Block Chain!")
 
 	for {
 		block := bci.Next()
 
 		fmt.Printf("Prev. hash: %x\n", block.PrevBlockHash)
-		fmt.Printf("Data: %s\n", block.Data)
+		fmt.Printf("Transaction: %s\n", block.HashTransactions())
 		fmt.Printf("Hash: %x\n", block.Hash)
 		pow := NewProofOfWork(block)
 		fmt.Printf("PoW: %s\n", strconv.FormatBool(pow.Validate()))
